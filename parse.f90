@@ -72,6 +72,8 @@ subroutine parse(PINPT)
     PINPT%flag_norm         = .FALSE.
     PINPT%flag_unfold       = .FALSE.
     PINPT%flag_set_unfold   = .FALSE.
+    PINPT%flag_reduce       = .TRUE.
+
 
     iverbose     = 1 ! 1:full, 2:no
     print_mode   = 3 ! default verbosity
@@ -137,6 +139,9 @@ subroutine parse(PINPT)
             
             elseif(trim(option) .eq. '-set_unfold')then
                 PINPT%flag_set_unfold = .TRUE.
+
+            elseif(trim(option) .eq. '-no_reduce') then
+                PINPT%flag_reduce = .FALSE.
 
             elseif(trim(option) .eq. '-ef') then
                 call getarg(iarg+1, value)
@@ -245,6 +250,7 @@ subroutine help()
     write(6,'(A)')"                  :  3. Prepare KPOINTS_PC : k-path of primitive BZ to be projected"
     write(6,'(A)')"                  : Output: KPOINTS_SC file will be generated"
     write(6,'(A)')"                  :         --> copy KPOINTS_SC to KPOINTS for the calculation to get WAVECAR"
+    write(6,'(A)')" -no_reduce       : do not remove duplicated K-point when generateing supercell KPOINTS with -set_unfold"
     write(6,'(A)')" -cd  1(or 0)     : Calculate spin- and k-resolved degree of circular polarization,"
     write(6,'(A)')"                  : between valence & conduction band"
     write(6,'(A)')"                  : If set to '1', Berry cuvature will not be evaluated."

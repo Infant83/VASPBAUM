@@ -43,7 +43,7 @@ module parameters
         logical                             flag_bc             
         logical                             flag_unfold         ! band structure unfold
         logical                             flag_set_unfold     ! prepare unfolding calculation (KPOINTS_SC)
-                                                                
+        logical                             flag_reduce         ! remove duplicated k-point?                                                           
         ! calculation mode                                      
         integer(kind=sp)                    icd                 ! CD calculation
 

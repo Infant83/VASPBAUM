@@ -35,7 +35,7 @@
     endif
 
     if(PINPT%flag_set_unfold) then
-        flag_reduce = .true. ! remove duplicated k-points
+        flag_reduce = PINPT%flag_reduce ! remove duplicated k-points
         call prepare_unfold_kpoint(PINPT, PGEOM_PC, PGEOM_SC, 1, flag_reduce)
         call write_kpoints_unfold(PINPT, PGEOM_SC)
         return
