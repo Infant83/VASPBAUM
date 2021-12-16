@@ -14,7 +14,7 @@
 #############################################################################
  TBBIN=$(HOME)/code/bin
  TBLIB=$(HOME)/code/lib
- VERSION=0.0.1
+ VERSION="0.0.1"
  
 #####################
 # MAC-INTEL COMPILE #
@@ -41,7 +41,6 @@ INCLUDE   = -I$(MKLPATH)/include
 #---------------------------------------------------------------------------|
 
 MPI_MOD= blacs_basics.o mpi_basics.o mpi_setup.o 
-KIND_MAP= kind_map # mapping between Fortran and C types used when ' make tbfitpy_mod ' 
 TEST   = test.o
 MODULE = mykind.o parameters.o do_math.o print_io.o directory.o utils.o $(MPI_MOD) kill.o time.o version.o \
 		 wavecar.o
@@ -66,7 +65,7 @@ endif
 #-----------------------------------
 # Suffix rules                     |
 #-----------------------------------
-.SUFFIXES: .f .f90 
+.SUFFIXES: .f .f90
 %.o: %.f90
 	$(F90) $(FFLAG) -c $<
 
@@ -75,7 +74,7 @@ endif
 #-----------------------------------
 
 ifeq ($(MPI_USE), YES)
-vaspbaum.mpi: $(OBJECTS) 
+vaspbaum.mpi: $(OBJECTS)
 	$(F90) -o $@ $^ $(LAPACK) $(INCLUDE)
 	cp $@ $(BIN)/vaspbaum.mpi
 else

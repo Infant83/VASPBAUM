@@ -18,4 +18,4 @@
 #define kill_job           stop
 #define kill_job1          stop
 #endif
-
+#define __VBAUM_VERSION__   "0.0.1"

@@ -1,3 +1,4 @@
+#include "alias.inc"
 module version
   use time
   use mpi_setup
@@ -7,9 +8,9 @@ contains
 
   function version_tag() result(ver_tag)
     implicit none
-    character*132  ver_tag
-
-    ver_tag='# VASP-BAUM version 0.0.1  (build ' // __DATE__// ' ' //__TIME__// ') '
+    character(len=132)  ver_tag, dummy
+    write(dummy,*)__VBAUM_VERSION__
+    ver_tag='# VASP-BAUM version: '//__VBAUM_VERSION__//' (build: ' // __DATE__// ' ' //__TIME__// ') '
 
     return
   endfunction
