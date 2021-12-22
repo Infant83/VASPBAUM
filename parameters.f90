@@ -38,6 +38,7 @@ module parameters
         character(len=256)                  fnamelog            ! log file name, default = TBFIT.log
         character(len=132)                  title               ! title of the system
         character(len=256)                  filenm              ! wavecar file name
+        character(len=256)                  folder_in           ! folder where the input  file is located
         character(len=256)                  folder_out          ! folder where the output file will be written
                                                                 
         logical                             flag_cd             

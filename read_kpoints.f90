@@ -159,10 +159,10 @@ subroutine prepare_unfold_kpoint(PINPT, PGEOM_PC, PGEOM_SC, imode, flag_reduce)
 
    !imode = 1 ! report k-point to be unfolded
 
-    write(kfilenm_pc,'(A)') trim(PINPT%folder_out)//'KPOINTS_PC'
-    write(kfilenm_sc,'(A)') trim(PINPT%folder_out)//'KPOINTS_SC'
-    write(filenm_pc, '(A)') trim(PINPT%folder_out)//'POSCAR_PC'
-    write(filenm_sc, '(A)') trim(PINPT%folder_out)//'POSCAR_SC'
+    write(kfilenm_pc,'(A)') trim(PINPT%folder_in)//'KPOINTS_PC'
+    write(kfilenm_sc,'(A)') trim(PINPT%folder_in)//'KPOINTS_SC'
+    write(filenm_pc, '(A)') trim(PINPT%folder_in)//'POSCAR_PC'
+    write(filenm_sc, '(A)') trim(PINPT%folder_in)//'POSCAR_SC'
 
     write(message,'(A)')' ' ; write_msgi
     write(message,'(A)')'#- READING POSCAR  FILE: ' ; write_msgi

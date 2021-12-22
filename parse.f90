@@ -9,10 +9,13 @@ subroutine parse_very_init(PINPT)
     type(incar)         ::  PINPT
     integer(kind=sp)        narg, iarg, i, idummy
     character(len=256)      option, value, dummy
-    
+    logical                 flag_set_folder_out_by_hand
+
     PINPT%fnamelog  = 'VASPBAUM.out' ! default
     PINPT%title     = ''
+    PINPT%folder_in= './'
     PINPT%folder_out= './'
+    flag_set_folder_out_by_hand = .false.
 
     narg = iargc()
     do iarg = 1, narg
@@ -22,15 +25,27 @@ subroutine parse_very_init(PINPT)
           call getarg(iarg+1, PINPT%fnamelog) ! set output file name
 
         elseif(trim(option) .eq. '-path') then
+            call getarg(iarg+1, PINPT%folder_in)
+            idummy = len_trim(PINPT%folder_in)
+            if(PINPT%folder_in(idummy:idummy) .ne. '/') then
+                PINPT%folder_in = trim(PINPT%folder_in)//'/'
+            endif
+
+        elseif(trim(option) .eq. '-path_out') then
             call getarg(iarg+1, PINPT%folder_out)
             idummy = len_trim(PINPT%folder_out)
             if(PINPT%folder_out(idummy:idummy) .ne. '/') then
                 PINPT%folder_out = trim(PINPT%folder_out)//'/'
             endif
-            
+            flag_set_folder_out_by_hand = .true.
         endif
+
       endif
     enddo
+
+    if(.not. flag_set_folder_out_by_hand) then
+        PINPT%folder_out = trim(PINPT%folder_in)
+    endif
 
     write(dummy,'(A)')trim(PINPT%folder_out)//trim(PINPT%fnamelog)
     PINPT%fnamelog = trim(dummy)
@@ -53,8 +68,7 @@ subroutine parse(PINPT)
     
     narg = iargc()
 
-    write(PINPT%filenm,'(A)') trim(PINPT%folder_out)//'WAVECAR'
-   !PINPT%filenm            = 'WAVECAR'    ! default
+    write(PINPT%filenm,'(A)') trim(PINPT%folder_in)//'WAVECAR'
     PINPT%title             = 'VASPBAUM.OUT'
     PINPT%nelect            = 0            ! default
     PINPT%ie_init           = 1
@@ -213,7 +227,8 @@ subroutine help()
     write(6,'(A)')" "
     write(6,'(A)')"             ### POSSIBLE OPTIONS ###"
     write(6,'(A)')" -wf filename     : File name of WAVECAR to be read. Default: ./WAVECAR"
-    write(6,'(A)')" -path folder     : Folder where the input/output will be read/written. Default: ./"
+    write(6,'(A)')" -path folder_in  : Folder where the input/output will be read/written. Default: ./"
+    write(6,'(A)')" -path_out folder : Folder where the output will be written. Default: folder_in (-path)"
     write(6,'(A)')" -s   2 or 1      : for the noncollinear case, -s   2"
     write(6,'(A)')"                  : for the collinear or NM,   -s   1"
     write(6,'(A)')"                  :  Default : 2 if ISPIN 1, 1 if ISPIN 2"
