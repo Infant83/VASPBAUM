@@ -85,7 +85,7 @@ subroutine get_kpath_from_file(fname, PGEOM)
       enddo line
 
     if (linecount == 0) then
-      write(message,*)'Attention - empty input file: KPOINTS_BAND ',func  ; write_msgi
+      write(message,*)'Attention - empty input file: ',trim(fname) ; write_msgi
       stop
     endif
     close(pid_kpts)
@@ -135,7 +135,7 @@ subroutine get_kpath(PK, nkdiv, nline, kpath)
         dk(1:3) = ( PK(:,iline + 1) - PK(:,iline) ) / dble(nkdiv-1) ! if ndivk=1 it crashes -> need solution
         do ik = 1, nkdiv
             ii = ii + 1
-            kpath(1:3, ii) = PK(1:3, iline) + dk(1:3) * (ik-1)
+            kpath(1:3, ii) = PK(1:3, iline) + dk(1:3) * dble(ik-1)
         enddo
     enddo
 
@@ -155,7 +155,7 @@ subroutine prepare_unfold_kpoint(PINPT, PGEOM_PC, PGEOM_SC, imode, flag_reduce)
     character(len=256)      kfilenm_pc, kfilenm_sc, filenm_pc, filenm_sc
     real(kind=dp)           M(3,3)
     integer(kind=sp)        imode
-    logical                 flag_reduce
+    logical                 flag_reduce ! if .TRUE. remove duplicated k-points
 
    !imode = 1 ! report k-point to be unfolded
 
@@ -281,7 +281,7 @@ subroutine get_unfold_klist(KP_PC, KP_SC, M, imode, flag_reduce)
         gpts(:,ik)  = G   
         if(imode .eq. 1) then
             ! in reciprocal unit (fractional)
-            write(message,'( 2(A,3F9.4), A, 3I5, A)')"  k-point k0(PC): ", k, &
+            write(message,'( 2(A,3F15.8), A, 3I5, A)')"  k-point k0(PC): ", k, &
                                                             " , K0(SC): ", K_1BZ, &
                                                             " , G0(SC): ", G ; write_msgi
         endif
@@ -313,7 +313,7 @@ subroutine map_k_to_K_1BZ(k, M, KK, G, K_1BZ)
     MT      = transpose(M)
     KK      = matmul(k,MT)
    !G       = nint(KK - eta)
-    G       = nint(KK )
+    G       = idnint(KK )
     K_1BZ   = KK - dble(G)
 
     return

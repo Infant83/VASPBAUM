@@ -39,16 +39,16 @@
         write(pid,'(A)')"#  THE INTERBAND TRANSITION MATRIX p_x,y ="
         write(pid,'(A)')"#   p_x,y(k,cv,s)=<psi(k,c,s)|-i*hbar*1/dx(y)|psi(k,v,s>"
         
-        max_ik     = maxloc(WAVEC%CD(3,is,ie,je,:))
-        min_ik     = minloc(WAVEC%CD(3,is,ie,je,:))
-        max_cd     =        WAVEC%CD(3,is,ie,je,max_ik(1)) 
-        min_cd     =        WAVEC%CD(3,is,ie,je,min_ik(1)) 
+        max_ik     = maxloc(WAVEC%CD(3,ie,je,is,:))
+        min_ik     = minloc(WAVEC%CD(3,ie,je,is,:))
+        max_cd     =        WAVEC%CD(3,ie,je,is,max_ik(1)) 
+        min_cd     =        WAVEC%CD(3,ie,je,is,min_ik(1)) 
         write(pid,'(A,I0,A,4F11.6)')"# MAXVAL(SPIN=",is,") of SELECTIVITY at kx,ky,kz (in reci)= ",WAVEC%kpts(:,max_ik), max_cd
         write(pid,'(A,I0,A,4F11.6)')"# MINVAL(SPIN=",is,") of SELECTIVITY at kx,ky,kz (in reci)= ",WAVEC%kpts(:,min_ik), min_cd
         write(pid,'(A)')"# (cart) kx        ky        kz(A^-1)   (recip)kx        ky        kz             RCD             LCD              CD"
 
         do ik = 1, PINPT%nkpts
-            write(pid,'(3F11.6,5X,3F11.6, 3(F20.9) )'), WAVEC%kpts(:,ik), WAVEC%kpts_cart(:,ik), WAVEC%CD(:,is,ie,je,ik)
+            write(pid,'(3F11.6,5X,3F11.6, 3(F20.9) )'), WAVEC%kpts(:,ik), WAVEC%kpts_cart(:,ik), WAVEC%CD(:,ie,je,is,ik)
         enddo
 
         close(pid)
@@ -81,11 +81,58 @@
         open(pid, file=trim(fname), status = 'unknown')
         call write_info(WAVEC, PINPT, pid)
 
-        write(pid,'(A,I0,A,2F16.5)')"# MAX and MIN CD (SPIN-",is,"): ", maxval(WAVEC%SW(3,is,:,:)), minval(WAVEC%SW(3,is,:,:))
+        write(pid,'(A,I0,A,2F16.5)')"# MAX and MIN CD (SPIN-",is,"): ", maxval(WAVEC%SW(3,:,is,:)), minval(WAVEC%SW(3,:,is,:))
         do ik = 1, PINPT%nkpts
             write(pid,'(A)')"# KPATH(A-1)           ENERGY(eV)         SW-RCD              SW-LCD                SW-CD"
             do ie = 1, PINPT%nediv
-                write(pid,'(F11.6, F20.6, 3F20.9)')kline(ik), erange(ie), WAVEC%SW(:,is,ie,ik)
+                write(pid,'(F11.6, F20.6, 3F20.9)')kline(ik), erange(ie), WAVEC%SW(:,ie,is,ik)
+            enddo
+            write(pid,'(A)')' '
+            write(pid,'(A)')' '
+        enddo
+
+        close(pid)
+    enddo
+
+    return
+  endsubroutine
+
+  subroutine write_cd_spectral_function(WAVEC, PINPT, PGEOM, erange)
+    use parameters
+    use utils
+    use mpi_setup
+    implicit none
+    type(incar  )    :: PINPT
+    type(eigen  )    :: WAVEC
+    type(poscar )    :: PGEOM
+    character(len=256)  fname
+    integer(kind=sp)    ii
+    integer(kind=sp)    ie, je, ik, is
+    integer(kind=sp)    pid
+    character(len=20)   ie_str, je_str, ik_str, is_str
+    integer(kind=sp)    max_ik(1), min_ik(1)
+    real(kind=dp)       max_sw, min_sw
+    real(kind=dp)       kline(PGEOM%nkpts), erange(PINPT%nediv)
+
+    if(myid .ne. 0) return
+
+    call get_kline_dist(PGEOM%kpts_cart, PGEOM%nkpts, kline)
+
+    do is = 1, PINPT%ispin
+        is_str = int2str(is-1)
+        write(fname,*)trim(PINPT%folder_out)//'UNFOLD_CD_SP',trim(adjustl(is_str)),'.dat'
+        open(pid, file=trim(fname), status='unknown')
+
+        write(pid,'(A,I0,A,2F16.5)')"# MAX and MIN CD (SPIN-",is,"): ", maxval(WAVEC%SW(3,:,is,:)), minval(WAVEC%SW(3,:,is,:))
+        do ik = 1, PGEOM%nline+1
+            write(pid,'(A,I6,A, F10.5)')'# K SEGMENTS ',ik, ' : ', kline(PGEOM%k_name_index(ik))
+        enddo
+
+        do ik = 1, PGEOM%nkpts
+            write(pid,'(A)')"# KPATH(A-1)           ENERGY(eV)         SW-RCD              SW-LCD                SW-CD"
+            write(pid,'(A)')'# KPATH   ENERGY   SW '
+            do ie = 1, PINPT%nediv
+                write(pid,'(F11.6,F20.6,3F20.9)') kline(ik), erange(ie) , WAVEC%SW(:, ie, is, ik)
             enddo
             write(pid,'(A)')' '
             write(pid,'(A)')' '

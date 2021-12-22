@@ -64,13 +64,20 @@ contains
 
     if(PINPT%icd .ge. 1) then
         if(allocated(WAVEC%CD))    deallocate(WAVEC%CD  )      
-        allocate(WAVEC%CD(3,PINPT%ispin,PINPT%nband,PINPT%nband,PINPT%nkpts))
+        allocate(WAVEC%CD(3,PINPT%nband,PINPT%nband,PINPT%ispin,PINPT%nkpts))
         WAVEC%CD = 0d0
         if(PINPT%icd .ge. 2) then
             if(allocated(WAVEC%SW))deallocate(WAVEC%SW  )
-            allocate(WAVEC%SW(3,PINPT%ispin,PINPT%nediv,PINPT%nkpts))
+            allocate(WAVEC%SW(3,PINPT%nediv,PINPT%ispin,PINPT%nkpts))
             WAVEC%SW = 0d0
         endif
+
+        ! NOTE1: if icd .eq. 3, unfolding will be come toghter 
+        !       --> SW, CD will be re-allocated with new kpoints of PC k-path 
+        !           (see get_circular_dichroism_unfold routine)
+        ! NOTE2: if flag_unfold .true., unfolding will be come toghter 
+        !       --> SW will be re-allocated with new kpoints of PC k-path
+        !           (see get_spectral_function routine)
     endif
 
     ! read eigenvalue, kpoints, occupations, number of plane waves
@@ -102,6 +109,9 @@ contains
                     if(nelect_prev .ne. nint(xnelect)) then
                         write(message,'(A, I5, I5, I5)')' ERROR. !!! ne(k) /= ne(k', nint(xnelect), &
                                                         nelect_prev, ik; write_msg
+                        write(message,'(A)')' NOTE: This error can occur if the system is metallic. '
+                        write(message,'(A)')'       --> explicitly specify total number of electrons'
+                        write(message,'(A)')'           by -ne option.'
                         kill_job
                     endif
                     nelect_prev = PINPT%nelect
@@ -134,8 +144,6 @@ contains
             allocate(WAVEC%GSid(WAVEC%nplw_max,PINPT%nkpts)) ; WAVEC%GSid= 0
         if(allocated(WAVEC%nplw_screen)) deallocate(WAVEC%nplw_screen)  
             allocate(WAVEC%nplw_screen(PINPT%nkpts))
-       !if(allocated(WAVEC%SW_BAND))     deallocate(WAVEC%SW_BAND)
-       !    allocate(WAVEC%SW_BAND(PINPT%nband,PINPT%ispin,PINPT%nkpts))
     endif
 
     return
@@ -196,10 +204,6 @@ contains
     do ispinor = 1, PINPT%ispinor
     do iplw = 1, nplw_screen
         CSnk(iplw,ispinor) = Cik(Cid(iplw),ispinor)
-       !if(Cik(Cid(iplw),ispinor) .ne. Cik(Cid(iplw),ispinor)) then
-       !  write(6,*)"QQQQ ",ik, Cid(iplw)
-       ! !kill_job1
-       !endif
     enddo
     enddo
 
@@ -213,59 +217,34 @@ contains
     type(incar  )    :: PINPT
     integer(kind=sp)    ik
     integer(kind=sp)    iplw, jplw
-    integer(kind=sp)    ispinor 
     integer(kind=sp)    nplw, nplw_max, nplw_screen
     integer(kind=sp)    Gid(WAVEC%nplw_max)
     integer(kind=sp)    GSid(WAVEC%nplw_max)
     integer(kind=sp)    CSid(WAVEC%nplw_max)
     integer(kind=sp)    gg(3)
-    logical flag_yes
 
-    flag_yes = .false.
     CSid        = 0
     Gid         = WAVEC%Gid(:,ik)
     GSid        = WAVEC%GSid(:,ik)
     nplw        = WAVEC%nplw(ik)/PINPT%ispinor
     nplw_screen = WAVEC%nplw_screen(ik)
 
-    do ispinor = 1, PINPT%ispinor
-        do iplw = 1, nplw_screen
-            do jplw = 1, nplw
-                if(GSid(iplw) .eq. Gid(jplw)) then
-                    CSid(iplw) = jplw
-                endif
-            enddo
-           !if(CSid(iplw) .eq. 0 .and. ik .eq. 7) then
-           !    gg = Gid_to_G(GSid(iplw), WAVEC%nbmax)
-           !    write(6,*)"ZZZ", ik, iplw, gg, GSid(iplw)
-           !endif
+    do iplw = 1, nplw_screen
+        do jplw = 1, nplw
+            if(GSid(iplw) .eq. Gid(jplw)) then
+                CSid(iplw) = jplw
+            endif
         enddo
     enddo
 
-!if(ik .eq. 7) then
-!  do iplw = 1, nplw_screen
-!    gg = Gid_to_G(GSid(iplw), WAVEC%nbmax)
-!    write(6,*)"AAA", ik, iplw, gg, GSid(iplw)
-!  enddo
-!endif
-
-!if(ik .eq. 7) then
-!do jplw = 1, nplw
-!  gg = Gid_to_G(Gid(jplw), WAVEC%nbmax)
-!  write(6,*)"CCC ", ik, jplw, gg, Gid(jplw)
-!enddo
-!stop
-!endif
-
-!if (flag_yes) stop
     return
   endfunction
 
   ! k + g
   function kpg(kp, g, B) result(kg)
     implicit none
-    real(kind=dp),      intent(in)   :: kp(3), B(3,3)
     integer(kind=sp),   intent(in)   :: g(3)
+    real(kind=dp),      intent(in)   :: kp(3), B(3,3)
     real(kind=dp)                    :: kg(3)
 
     kg(1) = dot_product(kp(:) + real(g(:)), B(1,:))
@@ -286,7 +265,7 @@ contains
     complex(kind=dp)    vex(3) ! velocity expectation value
     integer(kind=sp)    ispinor, iaxis
 
-    vex     = 0d0
+    vex(1:3)= 0d0  ! (vx, vy, vz), ex) vx = <Cjk|-i*hbar*d/dx|Cik> = <Cjk|vCik>
     
     Cjk     = Cnk( WAVEC, PINPT, je, is, ik)
     vCik    = vCnk(WAVEC, PINPT, ie, is, ik)
@@ -299,7 +278,24 @@ contains
 
     return
   endsubroutine
- 
+!
+! subroutine get_screened_vel_expectation(svex, Cid, ie, je, is, ik, WAVEC, PINPT)
+!   implicit none
+!   type(incar  )    :: PINPT
+!   type(eigen  )    :: WAVEC
+!   integer(kind=sp)    ie, je, is, ik
+!   integer(kind=sp)    Cid(WAVEC%nplw_max)
+!   complex(kind=dp)    CSjk(WAVEC%nplw_max/PINPT%ispinor,PINPT%ispinor)
+!   complex(kind=dp)    vCSik(WAVEC%nplw_max/PINPT%ispinor,PINPT%ispinor,3) ! -i*hbar*d/dx,y,z|CSik>
+!   complex(kind=dp)    svex(3) ! screened velocity expectation value
+!   integer(kind=sp)    ispinor, iaxis
+
+!   svex    = 0d0
+
+
+!   return
+! endsubroutine
+
   ! v|Cnk> where v = (vx, vy, vz) and vx = -i*hbar * d/dx
   function vCnk(WAVEC, PINPT, ie, is, ik)
     implicit none
@@ -321,8 +317,34 @@ contains
     do iplw = 1, WAVEC%nplw(ik)/PINPT%ispinor
         kg = kpg(WAVEC%kpts(:,ik), WAVEC%G(:,iplw,ik), PINPT%B) !* hbar = 1. for the simplicity
         do ispinor = 1, PINPT%ispinor
-           !vCnk(WAVEC%Gid(iplw,ik),ispinor,:) = kg(:) * coeff(WAVEC%Gid(iplw,ik),ispinor)
             vCnk(iplw,ispinor,:) = kg(:) * coeff(iplw,ispinor)
+        enddo
+    enddo
+
+    return
+  endfunction
+
+  ! v|CSnk> 
+  function vCSnk(Cid, WAVEC, PINPT, ie, is, ik)
+    implicit none
+    type(incar  )    :: PINPT
+    type(eigen  )    :: WAVEC
+    integer(kind=sp)    ie, is, ik
+    integer(kind=sp)    iplw, ispinor
+    integer(kind=sp)    nplw_screen
+    integer(kind=sp)    Cid(WAVEC%nplw_max)
+    complex(kind=dp)    vCSnk(WAVEC%nplw_max/PINPT%ispinor,PINPT%ispinor,3)
+    complex(kind=dp)    coeff(WAVEC%nplw_max/PINPT%ispinor,PINPT%ispinor)
+    real(kind=dp)       kg(3)
+
+    vCSnk = 0d0
+    coeff = CSnk(Cid, WAVEC, PINPT, ie, is, ik)
+    nplw_screen = WAVEC%nplw_screen(ik)
+
+    do iplw = 1, nplw_screen
+        kg = kpg(WAVEC%kpts(:,ik), WAVEC%GS(:,iplw,ik), PINPT%B)
+        do ispinor = 1, PINPT%ispinor
+            vCSnk(iplw,ispinor,:) = kg(:) * coeff(iplw,ispinor)
         enddo
     enddo
 

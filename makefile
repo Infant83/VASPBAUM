@@ -12,8 +12,8 @@
 #  Note: possible make command
 #      make vaspbaum.mpi # generate tbfit execution file
 #############################################################################
- TBBIN=$(HOME)/code/bin
- TBLIB=$(HOME)/code/lib
+ VBBIN=$(HOME)/code/bin
+ VBLIB=$(HOME)/code/lib
  VERSION="0.0.1"
  
 #####################
@@ -25,8 +25,8 @@
  FFLAG  = -O2 -heap-arrays -nogen-interfaces -assume byterecl
  MPI_USE= YES
 
-BIN    = $(TBBIN)
-LIB	   = $(TBLIB)
+BIN    = $(VBBIN)
+LIB	   = $(VBLIB)
 #---------------------------------------------------------------------------|
 MKLPATH   = $(MKLROOT)
 LAPACK    = -L$(MKLPATH)/lib/ \
@@ -46,7 +46,7 @@ MODULE = mykind.o parameters.o do_math.o print_io.o directory.o utils.o $(MPI_MO
 		 wavecar.o
 READER = parse.o read_kpoints.o read_poscar.o
 WRITER = write_info.o write_result_cd.o write_result_sw.o write_kpoints.o 
-GET    = get_spectral_weight.o get_circular_dichroism.f90
+GET    = get_band_unfold.o get_circular_dichroism.f90
 
 LIBTOOL= ar src
 

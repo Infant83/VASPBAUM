@@ -6,7 +6,8 @@ module parameters
     real(kind=dp)   , public, parameter   ::     pi2=2.d0*pi
     real(kind=dp)   , public, parameter   ::    bohr=0.52917721067d0 ! meter Bohr radius
     real(kind=dp)   , public, parameter   :: hartree=27.21138602d0 ! eV   Hartree energy
-    real(kind=dp)   , public, parameter   ::    hbar=4.135667662d-15/pi2  ! eV*s Plank constant
+    real(kind=dp)   , public, parameter   ::    hbar=4.1356676d-15/pi2  ! eV*s Plank constant
+    real(kind=dp)   , public, parameter   ::       h=4.1356676d-15      ! eV   Plank constant
     real(kind=dp)   , public, parameter   ::       c=0.262465831d0 !! constant c = 2m/hbar**2 [1/eV Ang^2] 
     real(kind=dp)   , public, parameter   ::     k_B=8.6173303d-5  !! Boltzmann constant = 2m/hbar**2 [1/eV Ang^2] 
     real(kind=dp)   , public, parameter   :: g_elect=2.0023193043617 !! g-factor[see Mol.Phys. 98, 1597(2000) for sign]
@@ -98,10 +99,10 @@ module parameters
         integer(kind=sp)                    plw_idx_max         ! maximum index number (Gid) for plane wave G vector indexing
         integer(kind=sp)                    nbmax(3)            ! maximum number of G vectors for each direction
 
-        real(kind=dp),      allocatable ::  CD(:,:,:,:,:)       ! CD(3,is,nband,nband,nkpts) CD between (ie, je) at ik
-                                                                ! CD(1,is,ie,je,ik) : RCD = <psi_j|A_R|phi_i>
-                                                                ! CD(2,is,ie,je,ik) : LCD
-                                                                ! CD(3,is,ie,je,ik) : (RCD - LCD)/(RCD+LCD)
+        real(kind=dp),      allocatable ::  CD(:,:,:,:,:)       ! CD(3,nband,nband,is,nkpts) CD between (ie, je) at ik
+                                                                ! CD(1,ie,je,is,ik) : RCD = <psi_j|A_R|phi_i>
+                                                                ! CD(2,ie,je,is,ik) : LCD
+                                                                ! CD(3,ie,je,is,ik) : (RCD - LCD)/(RCD+LCD)
         real(kind=dp),      allocatable ::  SW(:,:,:,:)         ! Spectral weight SW(3,is,nediv,nkpts)
                                                                 ! SW(1,~~      ) : SW for RCD
                                                                 ! SW(2,~~      ) : SW for LCD

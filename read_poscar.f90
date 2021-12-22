@@ -62,6 +62,9 @@ subroutine read_poscar(fname, PGEOM)
          endif
         enddo line
 
+       ! It is not necessary to read further atomic informations.
+       ! Just quit at this point.
+
     close(pid_geom)
 
     return

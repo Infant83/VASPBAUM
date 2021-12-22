@@ -2,7 +2,7 @@
 !*****************************************************************************80
 ! Licensing:
 !    This code is distributed under the GNU LGPL license.
-! PROGRAM VASP-BAUM Version 1.0 (f90)
+! PROGRAM VASP-BAUM Version 0.0.1 (f90)
 ! Written by Hyun-Jung Kim (h.kim@fz-juelich.de)
 !  PGI-1, Forschungszentrum Juelich
 ! Copyright 2021. Hyun-Jung Kim All rights reserved.
@@ -41,12 +41,16 @@ program vaspbaum
     call inforead(PINPT, WAVEC)
     call write_info(WAVEC, PINPT, 0)
 
-    call get_spectral_weight(WAVEC, PINPT)
+    if(PINPT%icd .eq. 0) then
+        call get_band_unfold(WAVEC, PINPT)
+    endif
 
     if(PINPT%icd .eq. 1) then
         call get_circular_dichroism_1(WAVEC, PINPT)
     elseif(PINPT%icd .eq. 2) then
         call get_circular_dichroism_matrix(WAVEC, PINPT)
+    elseif(PINPT%icd .eq. 3) then
+        call get_circular_dichroism_unfold(WAVEC, PINPT)
     endif
 
 #ifdef MPI

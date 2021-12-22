@@ -1,6 +1,6 @@
 #include "alias.inc"
 
-subroutine write_kpoints_unfold(PINPT, PGEOM)
+subroutine write_unfold_kpoint(PINPT, PGEOM)
     use mpi_setup
     use print_io
     use mykind
