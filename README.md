@@ -26,7 +26,7 @@ VASPBAUM is written for the post-processing purpose of the VASP outputs, i.e., W
 * run unfolding
 	1. Once you generated "WAVECAR" with KPOINTS_SC
 	2. run "vaspbaum" to unfold:  
-	> vaspbaum -unfold -nosoc -sigma 0.10 -nediv 4000 -norm T -ef -1.2 \
+	> vaspbaum -unfold -nosoc -sigma 0.10 -nediv 4000 -norm T -ef -1.2 
 	
 		-nosoc : without SOC (if SOC, set -soc) \
    		-nediv : division of energy window for spectral function \
@@ -43,7 +43,7 @@ VASPBAUM is written for the post-processing purpose of the VASP outputs, i.e., W
 		-fen   : incident photon energy (maximum)
 		
 	2. You can also controle the angle of incident photon with respect to the surface by -theta and -phi tag
-	> vaspbaum.mpi -unfold -nosoc -sigma 0.10 -nediv 4000 -norm T -cd 2  -ien 0.0 -fen 4.0 -theta 65.0 \
+	> vaspbaum.mpi -unfold -nosoc -sigma 0.10 -nediv 4000 -norm T -cd 2  -ien 0.0 -fen 4.0 -theta 65.0 
 	
 		-theta : angle along z-axis describing the direction of the injecting light \
 		-phi   : angle along x-axis describing the direction of the injecting light
