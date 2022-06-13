@@ -2,6 +2,9 @@
 BAnd Unfolding Machinery for VASP output (VASP-BAUM).
 VASPBAUM is written for the post-processing purpose of the VASP outputs, i.e., WAVECAR the Bloch wavefunction information. VASPBAUM can compute band structure unfolding via k-projection method [See described in Phys. Rev. B 85, 085201 (2012).] In addition Circular dichroism also can be evaluated. 
 
+# Download git version
+* git clone --branch master  https://github.com/Infant83/VASPBAUM.git
+
 # Compile
 * Serial version : set MPI_USE = NO in makefile
     > make vaspbaum.serial or make
