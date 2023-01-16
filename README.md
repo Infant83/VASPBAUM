@@ -45,7 +45,7 @@ VASPBAUM is written for the post-processing purpose of the VASP outputs, i.e., W
 		-ien   : incident photon energy (minimum) 
 		-fen   : incident photon energy (maximum)
 		
-	2. You can also controle the angle of incident photon with respect to the surface by -theta and -phi tag
+	2. You can also control the angle of incident photon with respect to the surface by -theta and -phi tag
 	> vaspbaum.mpi -unfold -nosoc -sigma 0.10 -nediv 4000 -norm T -cd 2  -ien 0.0 -fen 4.0 -theta 65.0 
 	
 		-theta : angle along z-axis describing the direction of the injecting light 
