@@ -60,7 +60,7 @@ VASPBAUM is written for the post-processing purpose of the VASP outputs, i.e., W
 * WSe2 twisted bilayer system (The example for unfold with CD is provided upon reasonable request)
 
 # Contributors
-* Hyun-Jung Kim: Main developer (h.kim@fz-juelich.de, PGI-1/IAS-1, Forschungszentrum Jülich)
-
+* Hyun-Jung Kim: Main developer (Infant@kias.re.kr)
+                                
 # Citation of the code:
-* The code is under active development. Please contact author (h.kim@fz-juelich.de) for the usage.
+* The code is under active development. Please contact author (Infant@kias.re.kr) for the usage.
